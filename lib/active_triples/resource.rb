@@ -7,6 +7,15 @@ module ActiveTriples
   class Resource
     include RDFSource
 
+    def initialize(*args, &block)
+      @owner = args.delete(:owner) if args.is_a?(Hash) && args.has_key?(:owner)
+      super(*args, &block)
+    end
+
+    def owner
+      @owner
+    end
+
     class << self
       def type_registry
         RDFSource.type_registry

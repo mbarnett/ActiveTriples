@@ -38,7 +38,14 @@ module ActiveTriples
     def self.define_readers(mixin, name)
       mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}(*args)
-          get_values(:#{name})
+          values = get_values(:#{name}, *args)
+          if self.parent.owner && self.parent.owner.respond_to?(:attribute_will_change!)
+            values.define_singleton_method(:<<) do |*args|
+              self.parent.owner.send(:attribute_will_change!, '#{name}')
+              super(*args)
+            end
+          end
+          values
         end
       CODE
     end
